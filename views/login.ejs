@@ -1,0 +1,14 @@
+<!-- Check if there is an error parameter in the URL, wont appear if no error is found -->
+<% if (req.query.error === 'invalid') { %>
+    Invalid username/password combination
+<% } else { %>
+    <!-- If user is not logged in -->
+    <a href="/signup">Sign Up</a> | 
+    <a href="/login">Log In</a>
+<% } %>
+<form action='/loggingin' method='post'>
+<input name='email' type='email' placeholder='email'>
+<input name='password' type='password' placeholder='password'>
+<button>Submit</button>
+</form>
+<%= errorMessage ? `<p>${errorMessage}</p>` : '' %>

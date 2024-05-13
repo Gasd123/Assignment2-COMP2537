@@ -14,7 +14,6 @@ const app = express();
 
 const Joi = require("joi");
 
-
 const expireTime = 1 * 60 * 60 * 1000; //expires after 1 hour  (hours * minutes * seconds * millis)
 
 /* secret information section */
@@ -47,34 +46,19 @@ app.use(session({
 	resave: true
 }
 ));
+
+// initialize view engine as ejs
+app.set('view engine', 'ejs');
 //End of copied code
 
 // Home page route
 app.get('/', (req, res) => {
-    if (req.session.user) {
-        // If user is logged in
-        res.send(`Hello, ${req.session.user.name}. <br>
-                  <a href="/members">Members Area</a> | 
-                  <a href="/logout">Logout</a>`);
-    } else {
-        // If user is not logged in
-        res.send(`<a href="/signup">Sign Up</a> | 
-                  <a href="/login">Log In</a>`);
-    }
+    res.render("home")
 });
 
 // Signup route
 app.get('/signup', (req, res) => {
-    var html = `
-    Sign Up
-    <form action='/submitUser' method='post'>
-    <input name='name' type='text' placeholder='name'>
-    <input name='email' type='email' placeholder='email'>
-    <input name='password' type='password' placeholder='password'>
-    <button>Submit</button>
-    </form>
-    `;
-    res.send(html);
+    res.render("signup");
 });
 
 //From /signup to submit a new user
@@ -85,13 +69,7 @@ app.post('/submitUser', async (req,res) => {
 
     // Check if any field is empty
     if (!email || !name || !password) {
-        var errorMessage = "All fields are required.";
-        errorMessage += `
-        <form action='/signup' method='get'>
-        <button type="submit">Try Again?</button>
-        </form>
-        `
-        return res.send(errorMessage);
+        return res.render("signup", {error: "All fields are required"});
     }
 
 	const schema = Joi.object(
@@ -121,16 +99,7 @@ app.post('/submitUser', async (req,res) => {
     req.session.name = name;
     req.session.cookie.maxAge = expireTime;
 
-    var html = `
-    Successfully Created User
-    <form action="/members" method="get">
-    <button type="submit">Members Area</button>
-    </form>
-    <form action="/logout" method="get">
-    <button type="submit">Logout</button>
-    </form>
-    `;
-    res.send(html);
+    res.render("successfulUser", {name: name});
 });
 
 // Login route

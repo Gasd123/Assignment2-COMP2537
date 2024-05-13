@@ -1,0 +1,10 @@
+<% if (req.session.user) { %>
+    <!-- If user is logged in -->
+    Hello, <%= req.session.user.name %>. <br>
+    <a href="/members">Members Area</a> | 
+    <a href="/logout">Logout</a>
+<% } else { %>
+    <!-- If user is not logged in -->
+    <a href="/signup">Sign Up</a> | 
+    <a href="/login">Log In</a>
+<% } %>
