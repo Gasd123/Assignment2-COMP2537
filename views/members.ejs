@@ -1,7 +1,5 @@
 <%- include("templates/header") %> 
 
-<h1>Hello, <%= name%>!</h1> <br>
-
 <style>
     .img-thumbnail {
     width: 200px;
@@ -20,7 +18,10 @@
     }
 </style>
 
-<div class="grid text-center image-container">
+
+<h1 class="d-flex justify-content-center align-items-center">Hello, <%= name%>!</h1> <br>
+
+<div class="grid text-center image-container d-flex justify-content-center align-items-center">
     <div class="g-col-6 g-col-md-4">
         <img src="1.jpg" alt="Cat with the Hat" class="img-thumbnail">
     </div>
@@ -31,10 +32,11 @@
         <img src="3.jpg" alt="Cat with the Relax" class="img-thumbnail">
     </div>
 </div>
-
 <br>
-<form action="/logout" method="GET">
-    <button type="submit">Logout</button>
-</form>
+<div class="text-center">
+    <form action="/logout" method="GET">
+        <button type="submit" class="btn btn-primary">Logout</button>
+    </form>
+</div>
 
 <%- include("templates/footer") %> 

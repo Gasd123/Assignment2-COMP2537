@@ -6,6 +6,7 @@ const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
+const { ObjectId } = require('mongodb');
 const saltRounds = 12;
 
 const port = process.env.PORT || 3000;
@@ -96,13 +97,14 @@ app.post('/submitUser', async (req,res) => {
 
     var hashedPassword = await bcrypt.hash(password, saltRounds);
 	
-	await userCollection.insertOne({email: email, password: hashedPassword, name: name});
+	await userCollection.insertOne({email: email, password: hashedPassword, name: name, type: 'user'});
 	console.log("Inserted user");
 
     // Set user details in the session
     req.session.authenticated = true;
     req.session.email = email;
     req.session.name = name;
+    req.session.type = 'user';
     req.session.cookie.maxAge = expireTime;
 
     res.render("successfulUser", {name: name});
@@ -155,6 +157,7 @@ app.post('/loggingin', async (req, res) => {
     req.session.authenticated = true;
     req.session.email = result.email;
     req.session.name = result.name;
+    req.session.type = result.type;
     req.session.cookie.maxAge = expireTime;
 
     res.redirect('/loggedin');
@@ -215,6 +218,62 @@ app.get('/members', (req, res) => {
 });
 
 app.use(express.static(__dirname + "/public"));
+
+// Admin route
+app.get("/admin", async(req,res) => {
+    
+    if (!req.session.authenticated) {
+        res.redirect('/login');
+        return;
+    }
+
+    // Check if user is an admin
+    if (req.session.type !== 'admin') {
+        res.status(403).send('You are not authorized to access this page.'); // Send 403 Forbidden status code if user is not an admin
+        return;
+    }
+
+    try {
+        // Fetch all users from the database
+        const users = await userCollection.find().toArray();
+
+        // Render the admin page with the list of users
+        res.render('admin', { users: users });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Promote user to admin route
+app.get("/admin/promote/:userId", async(req,res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Update user's type to admin in the database
+        await userCollection.updateOne({ _id: new ObjectId(userId) }, { $set: { type: 'admin' } });
+
+        res.redirect('/admin'); // Redirect back to the admin page after promoting user
+    } catch (error) {
+        console.error('Error promoting user to admin:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Demote admin to user route
+app.get("/admin/demote/:userId", async(req,res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Update user's type to user in the database
+        await userCollection.updateOne({ _id: new ObjectId(userId) }, { $set: { type: 'user' } });
+
+        res.redirect('/admin'); // Redirect back to the admin page after demoting user
+    } catch (error) {
+        console.error('Error demoting user to regular user:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Logout route
 app.get('/logout', (req, res) => {

@@ -1,0 +1,28 @@
+<%- include("templates/header") %> 
+
+<style>
+    h1 {
+        padding-left: 2vw;
+    }
+
+    ul {
+        list-style-type: none;
+        padding-left: 2vw;
+    }
+</style>
+
+<h1>Admin Page</h1>
+
+<ul>
+    <% users.forEach(user => { %>
+        <li>
+            <%= user.name %> - <%= user.type %>
+            <% if (user.type === 'user') { %>
+                <a href="/admin/promote/<%= user._id %>" class="btn btn-primary">Promote User</a>
+            <% } else { %>
+                <a href="/admin/demote/<%= user._id %>" class="btn btn-danger">Demote User</a>
+            <% } %>
+        </li>
+    <% }); %>
+</ul>
+<%- include("templates/footer") %> 
