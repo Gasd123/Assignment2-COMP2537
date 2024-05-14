@@ -1,3 +1,4 @@
+<%- include("templates/header") %> 
 <% if (req.session.user) { %>
     <!-- If user is logged in -->
     Hello, <%= req.session.user.name %>. <br>
@@ -6,5 +7,6 @@
 <% } else { %>
     <!-- If user is not logged in -->
     <a href="/signup">Sign Up</a> | 
-    <a href="/login">Log In</a>
-<% } %>
+    <a href="/login">Log In</a><% } %>
+
+<%- include("./templates/footer") %> 

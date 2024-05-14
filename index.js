@@ -53,7 +53,7 @@ app.set('view engine', 'ejs');
 
 // Home page route
 app.get('/', (req, res) => {
-    res.render("home")
+    res.render("home", { req: req })
 });
 
 // Signup route
@@ -104,27 +104,27 @@ app.post('/submitUser', async (req,res) => {
 
 // Login route
 app.get('/login', (req, res) => {
-    // Check if there is an error parameter in the URL, wont appear if no error is found
-    const errorMessage = req.query.error === 'invalid' ? 'Invalid username/password combination' : '';
-    var html = `
-    log in
-    <form action='/loggingin' method='post'>
-    <input name='email' type='email' placeholder='email'>
-    <input name='password' type='password' placeholder='password'>
-    <button>Submit</button>
-    </form>
-    ${errorMessage ? `<p>${errorMessage}</p>` : ''}
-    `;
-    res.send(html);
+
+    let errorMessage = '';
+    // Check if there is an error query parameter and set errorMessage accordingly
+    if (req.query.error === 'invalid') {
+        errorMessage = 'Invalid username/password combination';
+    }
+    res.render("login", {error: errorMessage});
 });
 
 app.post('/loggingin', async (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
 
+    // Check if email field is empty
+    if (!email) {
+        return res.redirect("/login?error=invalid");
+    }
+
     const schema = Joi.string().email().required();
     const validationResult = schema.validate(email);
-    
+
     // If email is not a valid email address, redirect back to login page with an error message
     if (validationResult.error != null) {
         console.log(validationResult.error);
@@ -171,16 +171,8 @@ app.get('/loggedin', async (req, res) => {
             // If user found, display the logged-in message along with the user's name
             req.session.name = user.name;
 
-            var html = `
-                Welcome ${user.name}!
-                <form action="/members" method="get">
-                    <button type="submit">Member</button>
-                </form>
-                <form action="/logout" method="get">
-                    <button type="submit">Logout</button>
-                </form>
-            `;
-            res.send(html);
+
+            res.render("loggedin", {name: user.name});
         } else {
             // If user not found, log out the user
             req.session.destroy();
