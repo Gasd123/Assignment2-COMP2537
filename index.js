@@ -51,14 +51,20 @@ app.use(session({
 app.set('view engine', 'ejs');
 //End of copied code
 
-// Home page route
-app.get('/', (req, res) => {
-    res.render("home", { req: req })
+// Add cache control middleware. This prevents the browser from caching the page and returning to session required areas.
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
 });
 
 // Signup route
 app.get('/signup', (req, res) => {
-    res.render("signup");
+    let errorMessage = '';
+    // Check if there is an error query parameter and set errorMessage accordingly
+    if (req.query.error === 'invalid') {
+        errorMessage = 'Invalid input. Please try again.';
+    }
+    res.render("signup", {error: errorMessage});
 });
 
 //From /signup to submit a new user
@@ -69,7 +75,7 @@ app.post('/submitUser', async (req,res) => {
 
     // Check if any field is empty
     if (!email || !name || !password) {
-        return res.render("signup", {error: "All fields are required"});
+        return res.redirect("/signup?error=invalid");
     }
 
 	const schema = Joi.object(
@@ -84,7 +90,7 @@ app.post('/submitUser', async (req,res) => {
     //if there is an error, it leads back to signup
 	if (validationResult.error != null) {
 	   console.log(validationResult.error);
-	   res.redirect("/signup");
+	   res.redirect("/signup?error=invalid");
 	   return;
    }
 
@@ -184,6 +190,17 @@ app.get('/loggedin', async (req, res) => {
     }
 });
 
+// Home page route
+app.get('/', (req, res) => {
+    if (req.session.name) {
+        // If user is logged in
+        res.render("home", { user: req.session.name });
+    } else {
+        // If user is not logged in
+        res.render("home", { user: null });
+    }
+});
+
 // Members Area route
 app.get('/members', (req, res) => {
 
@@ -193,22 +210,11 @@ app.get('/members', (req, res) => {
         return; 
     }
 
-    // Generate a random number between 1 and 3
-    const randomNumber = Math.floor(Math.random() * 3) + 1;
-    const pictureFilename = `${randomNumber}.jpg`;
+    res.render("members", {name: req.session.name});
 
-    const htmlContent = `
-        <h1>Hello, ${req.session.name}!</h1>
-        <img src="/${pictureFilename}" alt="Random Cat Picture">
-        <br>
-        <form action="/logout" method="GET">
-            <button type="submit">Logout</button>
-        </form>
-    `;
-
-    // Send the HTML content as the response
-    res.send(htmlContent);
 });
+
+app.
 
 app.use(express.static(__dirname + "/public"));
 
@@ -224,7 +230,7 @@ app.get('/logout', (req, res) => {
 
 app.get("*", (req,res) => {
 	res.status(404);
-	res.send("Page not found - 404");
+	res.render("404");
 })
 
 app.listen(port, () => {

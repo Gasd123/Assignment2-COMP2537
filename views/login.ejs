@@ -1,14 +1,24 @@
 <%- include("templates/header") %> 
+<h1 class="d-flex justify-content-center align-items-center">Login</h1>
+<br>
+<div class="container d-flex justify-content-center align-items-center">
+    <form action='/loggingin' method='post'>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Email address</label>
+            <input name='email' type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input name='password' type="password" class="form-control" id="exampleInputPassword1">
+        </div>
 
-<form action='/loggingin' method='post'>
-    <input name='email' type='email' placeholder='email'>
-    <input name='password' type='password' placeholder='password'>
-    <button>Submit</button>
-</form>
-
-<% if (error) { %>
-    <!-- Display the error message if it exists -->
-    <p><%= error %></p>
-<% } %>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <% if (error) { %>
+        <!-- Display the error message if it exists -->
+        <p"><%= error %></p>
+    <% } %>    
+</div>
 
 <%- include("templates/footer") %> 

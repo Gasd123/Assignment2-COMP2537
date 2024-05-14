@@ -1,12 +1,20 @@
 <%- include("templates/header") %> 
-<% if (req.session.user) { %>
-    <!-- If user is logged in -->
-    Hello, <%= req.session.user.name %>. <br>
-    <a href="/members">Members Area</a> | 
-    <a href="/logout">Logout</a>
-<% } else { %>
-    <!-- If user is not logged in -->
-    <a href="/signup">Sign Up</a> | 
-    <a href="/login">Log In</a><% } %>
-
-<%- include("./templates/footer") %> 
+<div class="container mt-5">
+    <% if (!user) { %>
+        <!-- If user is not logged in -->
+        <div class="alert alert-info d-flex justify-content-center align-items-center" role="alert">
+            <a href="/signup" class="btn btn-primary">Sign Up</a> 
+            <br>
+            <a href="/login" class="btn btn-primary">Log In</a>
+        </div>
+    <% } else { %>
+        <!-- If user is logged in -->
+        <h1 class="d-flex justify-content-center align-items-center"> Hello, <%= user %>. <br> Welcome to the Members Area!</h1>
+        <div class="alert alert-success d-flex justify-content-center align-items-center" role="alert">
+            <a href="/members" class="btn btn-primary">Members Area</a> 
+            <br>
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        </div>
+    <% } %>
+</div>
+<%- include("templates/footer") %> 
