@@ -214,8 +214,6 @@ app.get('/members', (req, res) => {
 
 });
 
-app.
-
 app.use(express.static(__dirname + "/public"));
 
 // Logout route
